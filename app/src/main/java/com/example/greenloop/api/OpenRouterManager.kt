@@ -27,16 +27,63 @@ object OpenRouterManager {
         return Base64.encodeToString(byteArray, Base64.NO_WRAP)
     }
 
-    suspend fun analyzeImage(bitmap: Bitmap, prompt: String): String? {
+    suspend fun analyzeImage(bitmap: Bitmap): String? {
         val base64Image = bitmapToBase64(bitmap)
+        
+        val systemPrompt = """
+            System Role: You are a Bulletproof Receipt Extraction Specialist for a food-waste prevention app. 
+            Your goal is to extract ONLY food items and convert them into high-quality, structured data.
+
+            ### CRITICAL FILTERING RULES:
+            1. ONLY INCLUDE FOOD AND BEVERAGES: If it's not edible or drinkable, IGNORE IT.
+            2. EXCLUDE DISCOUNTS: Completely ignore lines starting with '-', 'SAVINGS', 'MULTIBUY', 'DISCOUNT', or 'VOUCHER'.
+            3. EXCLUDE LOYALTY/POINTS: Ignore Nectar points, Clubcard points, or any reward point balance lines.
+            4. EXCLUDE NON-FOOD: Ignore carrier bags, cleaning supplies, toiletries, hardware, or clothing.
+
+            ### EXTRACTION & STANDARDIZATION RULES:
+            1. Mandatory Fields: human_readable_name, price, and shop_date.
+            2. Date Fallback: If shop_date is missing, use March 28, 2026.
+            3. Name Standardization: Convert receipt abbreviations into clean, professional titles. 
+               Examples: 
+               - "ORG STRAWBRY 1LB" -> "Organic Strawberries"
+               - "LURPAK SLTD 250G" -> "Lurpak Salted Butter"
+               - "CHICK BRST FLLT" -> "Chicken Breast Fillets"
+            4. No Hallucinations: If a value is unknown, set to null. Do not invent data.
+            5. Expiry Logic: Calculate 'days_to_expiry' based on standard USDA FoodKeeper shelf-life from the shop_date.
+
+            ### OUTPUT SCHEMA:
+            Return ONLY a valid JSON object:
+            {
+              "metadata": {
+                "shop_name": "string",
+                "shop_date": "YYYY-MM-DD",
+                "total_price": float,
+                "currency": "string"
+              },
+              "items": [
+                {
+                  "raw_text": "string (original receipt line)",
+                  "human_readable_name": "string (cleaned name)",
+                  "price": float,
+                  "category": "string (e.g., Dairy, Produce, Meat, Bakery, Pantry)",
+                  "days_to_expiry": integer
+                }
+              ]
+            }
+        """.trimIndent()
+
         val request = OpenRouterRequest(
             messages = listOf(
                 Message(
+                    role = "system",
+                    content = listOf(MessageContent(type = "text", text = systemPrompt))
+                ),
+                Message(
+                    role = "user",
                     content = listOf(
-                        MessageContent(type = "text", text = prompt),
                         MessageContent(
                             type = "image_url",
-                            imageUrl = ImageUrl(url = "data:image/jpeg;base64,$base64Image")
+                            imageUrl = ImageUrl(url = "data:image/jpeg;base64,${base64Image}")
                         )
                     )
                 )

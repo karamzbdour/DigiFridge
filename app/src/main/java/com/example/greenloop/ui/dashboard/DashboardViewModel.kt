@@ -14,8 +14,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.json.JSONArray
+import org.json.JSONObject
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Locale
 
 class DashboardViewModel(private val repository: IngredientRepository) : ViewModel() {
 
@@ -36,23 +38,8 @@ class DashboardViewModel(private val repository: IngredientRepository) : ViewMod
         viewModelScope.launch {
             _isScanning.value = true
             try {
-                val prompt = """
-                    Identify the food items on this receipt or in this image. 
-                    For each item, provide:
-                    1. Name
-                    2. Category (Dairy, Vegetables, Fruits, Meat, Cupboard)
-                    3. Likely expiry date (in days from now)
-                    4. Estimated price (as a number, e.g., 2.50)
-                    5. Estimated calories (per typical serving or package)
-                    6. Estimated protein in grams (per typical serving or package)
-                    
-                    Format the response ONLY as a JSON list: 
-                    [{"name": "Milk", "category": "Dairy", "expiryDays": 7, "quantity": "1L", "price": 2.50, "calories": 150, "protein": 8.0}]
-                """.trimIndent()
-                
-                val resultText = OpenRouterManager.analyzeImage(bitmap, prompt)
+                val resultText = OpenRouterManager.analyzeImage(bitmap)
                 _scanResult.value = resultText
-                
                 parseAndSaveResult(resultText)
             } catch (e: Exception) {
                 _scanResult.value = "Error: ${e.message}"
@@ -67,64 +54,42 @@ class DashboardViewModel(private val repository: IngredientRepository) : ViewMod
         
         try {
             val cleanJson = resultText.trim().removeSurrounding("```json", "```").trim()
-            val jsonArray = JSONArray(cleanJson)
+            val root = JSONObject(cleanJson)
+            val metadata = root.optJSONObject("metadata")
+            val itemsArray = root.getJSONArray("items")
             
-            for (i in 0 until jsonArray.length()) {
-                val obj = jsonArray.getJSONObject(i)
-                val name = obj.optString("name", "Unknown Item")
-                val category = obj.optString("category", "Cupboard")
-                val expiryDays = obj.optInt("expiryDays", 7)
-                val quantity = if (obj.isNull("quantity")) null else obj.getString("quantity")
+            // Parse shop date if available, otherwise use current time
+            val shopDateStr = metadata?.optString("shop_date", "")
+            val shopDateLong = if (!shopDateStr.isNullOrEmpty()) {
+                try {
+                    SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(shopDateStr)?.time ?: System.currentTimeMillis()
+                } catch (e: Exception) { System.currentTimeMillis() }
+            } else {
+                System.currentTimeMillis()
+            }
+            
+            for (i in 0 until itemsArray.length()) {
+                val obj = itemsArray.getJSONObject(i)
+                val name = obj.optString("human_readable_name", "Unknown Item")
                 val price = obj.optDouble("price", 0.0)
-                val calories = obj.optInt("calories", 0)
-                val protein = obj.optDouble("protein", 0.0)
+                val category = obj.optString("category", "Uncategorized")
+                val daysToExpiry = if (obj.isNull("days_to_expiry")) 7 else obj.getInt("days_to_expiry")
                 
                 val calendar = Calendar.getInstance()
-                calendar.add(Calendar.DAY_OF_YEAR, expiryDays)
+                calendar.timeInMillis = shopDateLong
+                calendar.add(Calendar.DAY_OF_YEAR, daysToExpiry)
                 
                 val newItem = Ingredient(
                     name = name,
                     category = category,
                     expiryDate = calendar.timeInMillis,
-                    quantity = quantity,
-                    price = price,
-                    calories = calories,
-                    protein = protein
+                    addedDate = shopDateLong, // Use receipt date for graphs/history
+                    price = price
                 )
                 repository.insertIngredient(newItem)
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            fallbackParse(resultText)
-        }
-    }
-
-    private suspend fun fallbackParse(resultText: String) {
-        val regex = Regex("""\{\s*\"name\":\s*\"([^\"]+)\",\s*\"category\":\s*\"([^\"]+)\",\s*\"expiryDays\":\s*(\d+)(?:,\s*\"quantity\":\s*\"([^\"]+)\")?(?:,\s*\"price\":\s*([\d\.]+))?(?:,\s*\"calories\":\s*(\d+))?(?:,\s*\"protein\":\s*([\d\.]+))?\s*\}""")
-        val matches = regex.findAll(resultText)
-        
-        matches.forEach { match ->
-            val name = match.groups[1]?.value ?: "Unknown Item"
-            val category = match.groups[2]?.value ?: "Cupboard"
-            val expiryDays = match.groups[3]?.value?.toIntOrNull() ?: 7
-            val quantity = match.groups[4]?.value
-            val price = match.groups[5]?.value?.toDoubleOrNull()
-            val calories = match.groups[6]?.value?.toIntOrNull()
-            val protein = match.groups[7]?.value?.toDoubleOrNull()
-            
-            val calendar = Calendar.getInstance()
-            calendar.add(Calendar.DAY_OF_YEAR, expiryDays)
-            
-            val newItem = Ingredient(
-                name = name,
-                category = category,
-                expiryDate = calendar.timeInMillis,
-                quantity = quantity,
-                price = price,
-                calories = calories,
-                protein = protein
-            )
-            repository.insertIngredient(newItem)
         }
     }
 
