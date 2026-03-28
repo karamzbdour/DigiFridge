@@ -12,6 +12,9 @@ import com.example.greenloop.data.repository.HistoryRepository
 import com.example.greenloop.data.repository.IngredientRepository
 import com.example.greenloop.data.repository.RecipeRepository
 import com.example.greenloop.data.repository.UserRepository
+import com.google.firebase.Firebase
+import com.google.firebase.ai.ai
+import com.google.firebase.ai.type.GenerativeBackend
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.flow.*
@@ -52,6 +55,8 @@ class RecipeViewModel(
 
     fun generateAiRecipe() {
         val selectedIds = _selectedIngredients.value
+        val model = Firebase.ai(backend = GenerativeBackend.googleAI())
+            .generativeModel("gemini-3-flash-preview")
         if (selectedIds.isEmpty()) return
 
         viewModelScope.launch {
@@ -73,15 +78,18 @@ class RecipeViewModel(
                     Only return the JSON.
                 """.trimIndent()
 
-                val response = GeminiManager.model.generateContent(prompt)
-                val responseText = response.text ?: ""
-                
-                // Clean the response if it contains markdown code blocks
-                val jsonString = responseText.substringAfter("```json").substringBeforeLast("```").trim()
-                val finalJson = if (jsonString.isEmpty()) responseText.trim() else jsonString
-                
-                val recipe = adapter.fromJson(finalJson)
-                _generatedRecipe.value = recipe
+                val response = model.generateContent(prompt)
+                print(response.text)
+
+//                val response = GeminiManager.model.generateContent(prompt)
+//                val responseText = response.text ?: ""
+//
+//                // Clean the response if it contains markdown code blocks
+//                val jsonString = responseText.substringAfter("```json").substringBeforeLast("```").trim()
+//                val finalJson = if (jsonString.isEmpty()) responseText.trim() else jsonString
+//
+//                val recipe = adapter.fromJson(finalJson)
+//                _generatedRecipe.value = recipe
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {

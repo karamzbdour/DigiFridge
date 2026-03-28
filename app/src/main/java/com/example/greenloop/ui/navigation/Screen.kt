@@ -12,11 +12,13 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector)
     object Recipes : Screen("recipes", "Recipes", Icons.Rounded.RestaurantMenu)
     object Progress : Screen("progress", "Progress", Icons.Rounded.History)
     object Profile : Screen("profile", "Profile", Icons.Rounded.Person)
+    object Test : Screen("test", "Test", Icons.Rounded.Dashboard)
 }
 
 val bottomNavItems = listOf(
     Screen.Dashboard,
     Screen.Recipes,
     Screen.Progress,
-    Screen.Profile
+    Screen.Profile,
+    Screen.Test
 )

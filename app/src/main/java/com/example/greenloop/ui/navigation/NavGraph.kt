@@ -54,5 +54,9 @@ fun NavGraph(navController: NavHostController) {
             )
             ProfileScreen(viewModel = viewModel)
         }
+        composable(Screen.Test.route) {
+            com.example.greenloop.ui.test.TestingScreen()
+        }
     }
 }
+

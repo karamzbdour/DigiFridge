@@ -6,6 +6,8 @@ val localProps = Properties().also { props ->
 }
 
 plugins {
+    id("com.google.gms.google-services")
+
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.devtools.ksp)
@@ -55,6 +57,11 @@ kotlin {
 }
 
 dependencies {
+    implementation(platform("com.google.firebase:firebase-bom:34.11.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-ai")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)

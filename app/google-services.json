@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "502400661601",
+    "project_id": "greenloopbathhack",
+    "storage_bucket": "greenloopbathhack.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:502400661601:android:f5c2900ea5246d93ed1220",
+        "android_client_info": {
+          "package_name": "com.example.greenloop"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1fXH4A7fWPa_-_Nrqw_9Kx6Lw2KrpcB4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
