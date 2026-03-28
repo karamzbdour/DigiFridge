@@ -4,10 +4,9 @@ import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.greenloop.api.GeminiManager
+import com.example.greenloop.api.OpenRouterManager
 import com.example.greenloop.data.model.Ingredient
 import com.example.greenloop.data.repository.IngredientRepository
-import com.google.ai.client.generativeai.type.content
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -17,7 +16,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.json.JSONArray
 import java.util.Calendar
-import java.util.Locale
 
 class DashboardViewModel(private val repository: IngredientRepository) : ViewModel() {
 
@@ -52,12 +50,7 @@ class DashboardViewModel(private val repository: IngredientRepository) : ViewMod
                     [{"name": "Milk", "category": "Dairy", "expiryDays": 7, "quantity": "1L", "price": 2.50, "calories": 150, "protein": 8.0}]
                 """.trimIndent()
                 
-                val inputContent = content {
-                    image(bitmap)
-                    text(prompt)
-                }
-                val response = GeminiManager.model.generateContent(inputContent)
-                val resultText = response.text
+                val resultText = OpenRouterManager.analyzeImage(bitmap, prompt)
                 _scanResult.value = resultText
                 
                 parseAndSaveResult(resultText)

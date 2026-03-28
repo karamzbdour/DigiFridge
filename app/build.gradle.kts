@@ -26,6 +26,9 @@ android {
 
         val geminiApiKey = localProps.getProperty("GEMINI_API_KEY") ?: ""
         buildConfigField("String", "GEMINI_API_KEY", "\"$geminiApiKey\"")
+        
+        val openRouterApiKey = localProps.getProperty("OPENROUTER_API_KEY") ?: ""
+        buildConfigField("String", "OPENROUTER_API_KEY", "\"$openRouterApiKey\"")
     }
 
     buildTypes {
