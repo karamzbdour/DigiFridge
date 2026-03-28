@@ -1,30 +1,33 @@
 # Project Plan
 
-Build a sustainability app named "GreenLoop" that helps users upcycle biowaste into useful products using AI. The app features a dashboard for scanning receipts and tracking expiring items, an upcycling recipe library, a progress tracker for CO2 saved, and personalized settings. It uses Kotlin, Jetpack Compose, MVVM, Gemini SDK, and CameraX.
+Update "GreenLoop" to focus on food waste reduction by generating recipes from expiring ingredients. This includes updating the data layer (Ingredients and RecipeTasks), the Dashboard UI (Inventory list), the Tasks UI (Recipe Generator with checkbox selection), and the Gemini API logic for structured JSON recipe generation.
 
 ## Project Brief
 
 # Project Brief: GreenLoop
 
-GreenLoop is a sustainability-focused Android application designed to help users minimize waste by transforming biowaste into useful products through AI-driven upcycling recipes.
+GreenLoop is a sustainability-focused Android application designed to combat food waste. By pivoting from general biowaste upcycling to intelligent kitchen management, the app helps users track their inventory and use Google Gemini AI to generate recipes from ingredients that are about to expire.
 
 ### Features
-*   **Intelligent Dashboard**: A central hub featuring a "Scan Receipt" tool powered by Gemini AI to catalog potential waste and a card-based layout tracking "Items Expiring Soon."
-*   **Upcycling Recipe Library**: A curated list of biowaste-to-product recipes (e.g., turning orange peels into cleaner) with detailed steps, difficulty ratings, and interactive "Start" buttons.
-*   **Sustainability Progress Tracker**: A visual representation of environmental impact featuring a circular progress bar for "CO2 Saved" and a historical log of "Completed Upcycles."
-*   **Personalized User Profiles**: Adaptive settings that tailor recipe suggestions and tasks based on the user's living situation (Apartment vs. House) and specific allergies.
 
-### High-Level Tech Stack
+*   **Smart Fridge Inventory**: A "Fridge/Cupboard" dashboard that lists food items with "Expiring Soon" indicators. Users can quickly add items by scanning grocery receipts using **CameraX** and **Gemini AI**.
+*   **AI Recipe Generator**: A dynamic tool in the Tasks tab where users select multiple ingredients via checkboxes and generate custom, waste-reducing recipes using the **Gemini SDK**.
+*   **Guided Recipe Tasks**: Converts AI-generated recipes into structured, step-by-step interactive cards, complete with estimated preparation times and difficulty levels.
+*   **Sustainability Impact Tracker**: A visual progress dashboard featuring a circular indicator for "CO2 Saved" and a history of rescued food items, gamifying the waste reduction process.
+
+### High-Level Technical Stack
+
 *   **Language**: Kotlin
-*   **UI Framework**: Jetpack Compose (Material Design 3)
-*   **Architecture**: MVVM (Model-View-ViewModel)
-*   **Asynchronous Programming**: Kotlin Coroutines
-*   **Generative AI**: Google Gemini SDK (GenAI)
-*   **Hardware Integration**: CameraX (for receipt and waste scanning)
-*   **Code Generation**: KSP (Kotlin Symbol Processing)
+*   **UI Framework**: Jetpack Compose with **Material Design 3** (supporting Full Edge-to-Edge display).
+*   **Architecture**: MVVM (Model-View-ViewModel) with Navigation Compose.
+*   **Asynchronous Logic**: Kotlin Coroutines and Flow.
+*   **Generative AI**: **Google Gemini SDK** (Google AI Client) for receipt processing and JSON-structured recipe generation.
+*   **Hardware Integration**: **CameraX** for high-performance receipt capturing.
+*   **Networking & Serialization**: Retrofit with **Moshi** (utilizing **KSP** for efficient code generation).
+*   **Dependency Management**: Version Catalog (`libs.versions.toml`) with **KSP (Kotlin Symbol Processing)** for all annotation-based processing.
 
 ## Implementation Steps
-**Total Duration:** 33m 23s
+**Total Duration:** 42m 55s
 
 ### Task_1_Core_Foundation: Setup core data models, Room database for tracking waste and recipes, and integrate Gemini SDK for AI processing.
 - **Status:** COMPLETED
@@ -59,21 +62,45 @@ GreenLoop is a sustainability-focused Android application designed to help users
 ### Task_4_Refinement_Verification: Apply final Material 3 visual polish, create an adaptive icon, and perform final verification.
 - **Status:** COMPLETED
 - **Updates:** 1.  **Material 3 Visual Polish**:
-    *   Updated the color palette to a professionally curated **Material 3 Green scheme**, providing high contrast and a vibrant, energetic feel.
-    *   Enhanced the `GreenLoopTheme` to support **Dynamic Color** (Android 12+) while providing a robust fallback.
-    *   Refined the **Edge-to-Edge** implementation, ensuring the status bar and navigation bar colors seamlessly blend with the app's background.
-2.  **Adaptive App Icon**:
-    *   Designed and implemented a custom **adaptive icon**.
-    *   The icon features a stylized leaf within a circular loop, symbolizing the app's core mission of sustainable upcycling.
-    *   Ensured full compatibility with Android's adaptive icon requirements (background and foreground layers).
-3.  **Stability & Verification**:
-    *   Performed a final build check (`:app:assembleDebug`), which passed successfully.
-    *   Verified all navigation transitions and screen layouts for Material 3 compliance.
-    *   Confirmed that the app is stable and meets all the functional requirements outlined in the project brief.
 - **Acceptance Criteria:**
   - Vibrant, energetic Material 3 color scheme and edge-to-edge display implemented
   - Adaptive app icon is present
   - Final build passes and app is stable (no crashes)
   - Verify application stability and alignment with user requirements; report any UI issues
 - **Duration:** 5m 43s
+
+### Task_5_Pivot_Data_And_Dashboard: Update Room entities for food ingredients and recipes. Refactor the Dashboard into a 'Fridge/Cupboard' inventory list with expiration indicators and update receipt scanning logic for food.
+- **Status:** COMPLETED
+- **Updates:** 1.  **Data Layer Migration**:
+- **Acceptance Criteria:**
+  - Room entities (Ingredient, Recipe) updated for food waste context
+  - Dashboard UI displays 'Fridge/Cupboard' inventory with expiration badges
+  - Gemini scanning logic updated to identify food items from receipts
+  - Project builds successfully
+- **Duration:** 6m 17s
+
+### Task_6_AI_Recipe_Generator_And_Verify: Implement the AI Recipe Generator with checkbox ingredient selection, structured JSON recipe generation via Gemini, and interactive recipe cards. Perform final verification.
+- **Status:** COMPLETED
+- **Updates:** 1.  **AI Recipe Engine**:
+    *   Updated `RecipeViewModel` to fetch current inventory from `IngredientRepository`.
+    *   Implemented a checkbox selection system for users to choose specific ingredients they want to "rescue" (e.g., milk that's expiring tomorrow).
+    *   Integrated **Gemini AI** with a structured prompt that strictly enforces JSON output. This ensures the app can reliably parse recipe names, prep times, and step-by-step instructions.
+2.  **Interactive Tasks UI**:
+    *   **Ingredient Selector**: A clean list of inventory items with checkboxes, allowing users to combine multiple ingredients into a single recipe.
+    *   **Loading State**: Added a `CircularProgressIndicator` and animations to provide feedback while Gemini generates the recipe.
+    *   **Interactive Recipe Cards**: Generated recipes are displayed in a dedicated card with numbered steps and a prominent "Rescue & Complete" action.
+3.  **Sustainability Integration**:
+    *   **Rescue Logic**: When a user completes an AI-generated recipe, the selected ingredients are automatically removed from the inventory.
+    *   **CO2 Tracking**: Each rescued ingredient contributes an estimated **0.5kg of CO2 savings** to the user's sustainability progress.
+4.  **Refinement & Stability**:
+    *   Resolved build errors related to data model changes and navigation dependencies.
+    *   Ensured the `NavGraph` correctly passes all required repositories to the `RecipeViewModel`.
+    *   Verified that the project builds successfully and adheres to Material 3 design principles.
+- **Acceptance Criteria:**
+  - UI for selecting multiple ingredients via checkboxes is functional
+  - Gemini integration generates recipes in structured JSON format
+  - Interactive step-by-step recipe cards implemented
+  - Sustainability tracker reflects food rescue history
+  - Build pass, app does not crash, and verify application stability with critic_agent
+- **Duration:** 3m 15s
 

@@ -9,9 +9,6 @@ interface RecipeDao {
     @Query("SELECT * FROM recipes")
     fun getAllRecipes(): Flow<List<Recipe>>
 
-    @Query("SELECT * FROM recipes WHERE biowasteType = :type")
-    fun getRecipesByType(type: String): Flow<List<Recipe>>
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRecipe(recipe: Recipe)
 
@@ -20,4 +17,7 @@ interface RecipeDao {
 
     @Query("SELECT * FROM recipes WHERE isFavorite = 1")
     fun getFavoriteRecipes(): Flow<List<Recipe>>
+    
+    @Query("SELECT * FROM recipes WHERE isWasteReducing = 1")
+    fun getWasteReducingRecipes(): Flow<List<Recipe>>
 }

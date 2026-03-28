@@ -13,7 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.greenloop.data.model.WasteItem
+import com.example.greenloop.data.model.Ingredient
 import java.text.SimpleDateFormat
 import java.util.*
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -23,7 +23,7 @@ import com.google.accompanist.permissions.isGranted
 @OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(viewModel: DashboardViewModel) {
-    val expiringItems by viewModel.expiringItems.collectAsStateWithLifecycle()
+    val inventoryItems by viewModel.inventoryItems.collectAsStateWithLifecycle()
     val isScanning by viewModel.isScanning.collectAsStateWithLifecycle()
     var showCamera by remember { mutableStateOf(false) }
     
@@ -34,6 +34,7 @@ fun DashboardScreen(viewModel: DashboardViewModel) {
             CameraView(
                 onImageCaptured = { bitmap ->
                     viewModel.scanImage(bitmap)
+                    showCamera = false
                 },
                 isScanning = isScanning,
                 onClose = { showCamera = false }
@@ -47,7 +48,7 @@ fun DashboardScreen(viewModel: DashboardViewModel) {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("GreenLoop Dashboard", fontWeight = FontWeight.Bold) },
+                    title = { Text("Fridge & Cupboard", fontWeight = FontWeight.Bold) },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
                         titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -60,7 +61,7 @@ fun DashboardScreen(viewModel: DashboardViewModel) {
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 ) {
-                    Icon(Icons.Default.CameraAlt, contentDescription = "Scan")
+                    Icon(Icons.Default.CameraAlt, contentDescription = "Scan Receipt")
                 }
             }
         ) { padding ->
@@ -71,22 +72,22 @@ fun DashboardScreen(viewModel: DashboardViewModel) {
                     .padding(16.dp)
             ) {
                 Text(
-                    text = "Items Expiring Soon",
+                    text = "Inventory",
                     style = MaterialTheme.typography.headlineSmall,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
-                if (expiringItems.isEmpty()) {
+                if (inventoryItems.isEmpty()) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("No items expiring soon. Scan a receipt to add items!")
+                        Text("Your fridge is empty! Scan a receipt to stock up.")
                     }
                 } else {
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(expiringItems) { item ->
-                            ExpiringItemCard(item)
+                        items(inventoryItems) { item ->
+                            IngredientCard(item)
                         }
                     }
                 }
@@ -96,7 +97,7 @@ fun DashboardScreen(viewModel: DashboardViewModel) {
 }
 
 @Composable
-fun ExpiringItemCard(item: WasteItem) {
+fun IngredientCard(item: Ingredient) {
     val sdf = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
     val dateString = sdf.format(Date(item.expiryDate))
     
@@ -113,23 +114,37 @@ fun ExpiringItemCard(item: WasteItem) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = item.name,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Expires: $dateString",
+                    text = "Category: ${item.category}",
                     style = MaterialTheme.typography.bodySmall
                 )
+                item.quantity?.let {
+                    Text(
+                        text = "Quantity: $it",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
             }
             
             val daysRemaining = ((item.expiryDate - System.currentTimeMillis()) / (24 * 60 * 60 * 1000)).toInt()
             val badgeColor = when {
-                daysRemaining <= 1 -> Color.Red
-                daysRemaining <= 3 -> Color(0xFFFFA000) // Orange
-                else -> MaterialTheme.colorScheme.primary
+                daysRemaining < 0 -> Color.Gray // Expired
+                daysRemaining <= 1 -> Color.Red // Critical
+                daysRemaining <= 3 -> Color(0xFFFFA000) // Warning (Orange)
+                else -> MaterialTheme.colorScheme.primary // Safe
+            }
+            
+            val statusText = when {
+                daysRemaining < 0 -> "Expired"
+                daysRemaining == 0 -> "Expires Today"
+                daysRemaining == 1 -> "Expires Tomorrow"
+                else -> "$daysRemaining days left"
             }
             
             Surface(
@@ -137,7 +152,7 @@ fun ExpiringItemCard(item: WasteItem) {
                 shape = MaterialTheme.shapes.small
             ) {
                 Text(
-                    text = "${daysRemaining}d left",
+                    text = statusText,
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                     style = MaterialTheme.typography.labelSmall,
                     color = Color.White

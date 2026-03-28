@@ -8,9 +8,11 @@ data class Recipe(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val title: String,
     val description: String,
-    val biowasteType: String,
-    val steps: String, // Stored as a joined string or JSON
+    val ingredients: String, // Comma-separated or JSON
+    val steps: String, // Joined string or JSON
+    val preparationTime: Int, // in minutes
     val difficulty: String, // Easy, Medium, Hard
     val co2Saved: Double, // in kg
+    val isWasteReducing: Boolean = true,
     val isFavorite: Boolean = false
 )

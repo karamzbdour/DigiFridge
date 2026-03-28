@@ -6,19 +6,19 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.greenloop.data.dao.HistoryDao
+import com.example.greenloop.data.dao.IngredientDao
 import com.example.greenloop.data.dao.RecipeDao
-import com.example.greenloop.data.dao.WasteDao
+import com.example.greenloop.data.model.Ingredient
 import com.example.greenloop.data.model.Recipe
 import com.example.greenloop.data.model.UpcycleHistory
-import com.example.greenloop.data.model.WasteItem
 
 @Database(
-    entities = [WasteItem::class, Recipe::class, UpcycleHistory::class],
-    version = 1,
+    entities = [Ingredient::class, Recipe::class, UpcycleHistory::class],
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun wasteDao(): WasteDao
+    abstract fun ingredientDao(): IngredientDao
     abstract fun recipeDao(): RecipeDao
     abstract fun historyDao(): HistoryDao
 
@@ -36,7 +36,6 @@ abstract class AppDatabase : RoomDatabase() {
                 .addCallback(object : RoomDatabase.Callback() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         super.onCreate(db)
-                        // This will run on a background thread by Room
                         INSTANCE?.let { database ->
                             DatabaseInitializer.populateDatabase(database)
                         }

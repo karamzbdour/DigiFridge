@@ -7,10 +7,7 @@ import kotlinx.coroutines.flow.Flow
 class RecipeRepository(private val recipeDao: RecipeDao) {
     val allRecipes: Flow<List<Recipe>> = recipeDao.getAllRecipes()
     val favoriteRecipes: Flow<List<Recipe>> = recipeDao.getFavoriteRecipes()
-
-    fun getRecipesByType(type: String): Flow<List<Recipe>> {
-        return recipeDao.getRecipesByType(type)
-    }
+    val wasteReducingRecipes: Flow<List<Recipe>> = recipeDao.getWasteReducingRecipes()
 
     suspend fun insertRecipe(recipe: Recipe) {
         recipeDao.insertRecipe(recipe)
