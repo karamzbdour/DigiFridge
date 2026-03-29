@@ -103,20 +103,33 @@ class RecipeViewModel(
         }
     }
 
+    private fun extractQuantity(quantityStr: String?): Int {
+        if (quantityStr == null) return 1
+        return try {
+            quantityStr.removePrefix("x").toIntOrNull() ?: 1
+        } catch (e: Exception) {
+            1
+        }
+    }
+
     fun completeGeneratedRecipe(recipe: GeneratedRecipe) {
         val selectedIds = _selectedIngredients.value
 
         viewModelScope.launch {
+            val selectedIngredients = inventory.value.filter { it.id in selectedIds }
+            val moneySaved = selectedIngredients.sumOf { (it.price ?: 0.0) * extractQuantity(it.quantity) }
+
             // Save to history
             val history = UpcycleHistory(
                 recipeId = -1, // AI generated
                 recipeTitle = recipe.recipeName,
-                co2Saved = selectedIds.size * 0.5 // Estimated 0.5kg per ingredient rescued
+                co2Saved = selectedIds.size * 0.5, // Estimated 0.5kg per ingredient rescued
+                moneySaved = moneySaved
             )
             historyRepository.insertHistory(history)
 
             // Remove used ingredients from inventory
-            inventory.value.filter { it.id in selectedIds }.forEach {
+            selectedIngredients.forEach {
                 ingredientRepository.deleteIngredient(it)
             }
 

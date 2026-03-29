@@ -3,37 +3,37 @@ package com.example.greenloop.ui.profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.greenloop.data.model.UpcycleHistory
+import com.example.greenloop.data.repository.HistoryRepository
 import com.example.greenloop.data.repository.UserRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 
-class ProfileViewModel(private val repository: UserRepository) : ViewModel() {
+class ProfileViewModel(
+    private val userRepository: UserRepository,
+    private val historyRepository: HistoryRepository
+) : ViewModel() {
 
-    val livingSituation: StateFlow<String> = repository.livingSituation
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "Apartment")
+    val history: StateFlow<List<UpcycleHistory>> = historyRepository.allHistory
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val allergies: StateFlow<String> = repository.allergies
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
+    val recipesMadeCount: StateFlow<Int> = history.map { it.size }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
-    fun updateLivingSituation(situation: String) {
-        viewModelScope.launch {
-            repository.updateLivingSituation(situation)
-        }
-    }
+    val totalMoneySaved: StateFlow<Double> = history.map { list ->
+        list.sumOf { it.moneySaved }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
-    fun updateAllergies(allergies: String) {
-        viewModelScope.launch {
-            repository.updateAllergies(allergies)
-        }
-    }
-
-    class Factory(private val repository: UserRepository) : ViewModelProvider.Factory {
+    class Factory(
+        private val userRepository: UserRepository,
+        private val historyRepository: HistoryRepository
+    ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(ProfileViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return ProfileViewModel(repository) as T
+                return ProfileViewModel(userRepository, historyRepository) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }

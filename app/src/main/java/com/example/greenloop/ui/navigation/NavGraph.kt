@@ -73,7 +73,7 @@ fun NavGraph(navController: NavHostController) {
         }
         composable(Screen.Profile.route) {
             val viewModel: ProfileViewModel = viewModel(
-                factory = ProfileViewModel.Factory(app.userRepository)
+                factory = ProfileViewModel.Factory(app.userRepository, app.historyRepository)
             )
             ProfileScreen(viewModel = viewModel)
         }

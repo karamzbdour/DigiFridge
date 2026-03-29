@@ -9,5 +9,6 @@ data class UpcycleHistory(
     val recipeId: Int,
     val recipeTitle: String,
     val completedDate: Long = System.currentTimeMillis(),
-    val co2Saved: Double
+    val co2Saved: Double,
+    val moneySaved: Double = 0.0
 )
