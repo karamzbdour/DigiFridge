@@ -4,23 +4,7 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-
-    <!-- Outer Circular Loop representing the "Loop" and recycling -->
     <path
-        android:fillColor="#FFFFFF"
+        android:fillColor="#4CAF50"
         android:pathData="M54,32 C41.85,32 32,41.85 32,54 C32,66.15 41.85,76 54,76 C66.15,76 76,66.15 76,54 C76,41.85 66.15,32 54,32 Z M54,71 C44.61,71 37,63.39 37,54 C37,44.61 44.61,37 54,37 C63.39,37 71,44.61 71,54 C71,63.39 63.39,71 54,71 Z" />
-
-    <!-- A stylized leaf in the center representing biowaste -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M54,44 C49,44 45,49 45,55 C45,61 54,66 54,66 C54,66 63,61 63,55 C63,49 59,44 54,44 Z M54,61 C51.24,61 49,58.76 49,56 C49,54 54,49 54,49 C54,49 59,54 59,56 C59,58.76 56.76,61 54,61 Z" />
-
-    <!-- Small nodes or dots representing AI/Technology integration -->
-    <path
-        android:fillColor="#A5D6A7"
-        android:pathData="M78,42 A3,3 0 1,1 72,42 A3,3 0 1,1 78,42 Z" />
-    <path
-        android:fillColor="#A5D6A7"
-        android:pathData="M36,66 A3,3 0 1,1 30,66 A3,3 0 1,1 36,66 Z" />
-
 </vector>
