@@ -14,7 +14,7 @@ import com.example.greenloop.data.model.UpcycleHistory
 
 @Database(
     entities = [Ingredient::class, Recipe::class, UpcycleHistory::class],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

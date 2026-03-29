@@ -38,14 +38,6 @@ class ProgressViewModel(
         items.sumOf { it.price ?: 0.0 }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
-    val totalCalories: StateFlow<Int> = inventoryItems.map { items ->
-        items.sumOf { it.calories ?: 0 }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
-
-    val totalProtein: StateFlow<Double> = inventoryItems.map { items ->
-        items.sumOf { it.protein ?: 0.0 }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
-
     val spendingTimeline: StateFlow<List<SpendingTimelinePoint>> = inventoryItems.map { items ->
         items.groupBy { 
             val cal = Calendar.getInstance()

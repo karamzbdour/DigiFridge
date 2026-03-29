@@ -13,8 +13,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Fastfood
-import androidx.compose.material.icons.filled.LocalFireDepartment
-import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,13 +20,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.greenloop.data.model.Ingredient
-import java.text.SimpleDateFormat
 import java.util.*
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberPermissionState
@@ -187,7 +183,7 @@ fun TotalValueCard(totalPrice: Double, itemCount: Int) {
                         color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
                     )
                     Text(
-                        text = "$${String.format(Locale.US, "%.2f", totalPrice)}",
+                        text = "£${String.format(Locale.UK, "%.2f", totalPrice)}",
                         style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.ExtraBold,
                         color = MaterialTheme.colorScheme.onPrimary
@@ -253,29 +249,13 @@ fun IngredientCard(item: Ingredient, onDelete: () -> Unit) {
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Nutritional Info
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    NutrientBadge(
-                        icon = Icons.Default.LocalFireDepartment,
-                        value = "${item.calories ?: 0}",
-                        label = "kcal",
-                        color = Color(0xFFFF7043)
-                    )
-                    NutrientBadge(
-                        icon = Icons.Default.Restaurant,
-                        value = "${String.format(Locale.US, "%.1f", item.protein ?: 0.0)}g",
-                        label = "protein",
-                        color = Color(0xFF4CAF50)
-                    )
-                }
-
                 // Price Tag
                 item.price?.let {
                     Text(
-                        text = "$${String.format(Locale.US, "%.2f", it)}",
+                        text = "£${String.format(Locale.UK, "%.2f", it)}",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.ExtraBold,
                         color = MaterialTheme.colorScheme.secondary
@@ -288,34 +268,6 @@ fun IngredientCard(item: Ingredient, onDelete: () -> Unit) {
             // Expiry Progress
             val daysRemaining = ((item.expiryDate - System.currentTimeMillis()) / (24 * 60 * 60 * 1000)).toInt()
             ExpiryStatus(daysRemaining)
-        }
-    }
-}
-
-@Composable
-fun NutrientBadge(icon: ImageVector, value: String, label: String, color: Color) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(
-            icon, 
-            contentDescription = null, 
-            tint = color,
-            modifier = Modifier.size(14.dp)
-        )
-        Spacer(modifier = Modifier.width(4.dp))
-        Column {
-            Text(
-                text = value,
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Bold,
-                lineHeight = 12.sp
-            )
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 8.sp,
-                lineHeight = 8.sp
-            )
         }
     }
 }

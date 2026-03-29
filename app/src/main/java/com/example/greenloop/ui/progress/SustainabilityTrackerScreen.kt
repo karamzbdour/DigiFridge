@@ -6,15 +6,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Payments
-import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -31,8 +28,6 @@ import java.util.*
 fun SustainabilityTrackerScreen(viewModel: ProgressViewModel) {
     val history by viewModel.history.collectAsStateWithLifecycle()
     val totalPrice by viewModel.totalPrice.collectAsStateWithLifecycle()
-    val totalCalories by viewModel.totalCalories.collectAsStateWithLifecycle()
-    val totalProtein by viewModel.totalProtein.collectAsStateWithLifecycle()
     val timeline by viewModel.spendingTimeline.collectAsStateWithLifecycle()
 
     Scaffold(
@@ -54,7 +49,7 @@ fun SustainabilityTrackerScreen(viewModel: ProgressViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            // Nutritional & Financial Stats Row
+            // Financial Stats Row
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -63,23 +58,9 @@ fun SustainabilityTrackerScreen(viewModel: ProgressViewModel) {
                     StatCard(
                         modifier = Modifier.weight(1f),
                         label = "Total Price",
-                        value = "$${String.format(Locale.US, "%.2f", totalPrice)}",
+                        value = "£${String.format(Locale.UK, "%.2f", totalPrice)}",
                         icon = Icons.Default.Payments,
                         color = Color(0xFF4CAF50)
-                    )
-                    StatCard(
-                        modifier = Modifier.weight(1f),
-                        label = "Calories",
-                        value = "$totalCalories",
-                        icon = Icons.Default.LocalFireDepartment,
-                        color = Color(0xFFFF7043)
-                    )
-                    StatCard(
-                        modifier = Modifier.weight(1f),
-                        label = "Protein",
-                        value = "${String.format(Locale.US, "%.1f", totalProtein)}g",
-                        icon = Icons.Default.Restaurant,
-                        color = Color(0xFF2196F3)
                     )
                 }
             }
@@ -231,7 +212,6 @@ fun HistoryItemRow(entry: UpcycleHistory) {
                     style = MaterialTheme.typography.bodySmall
                 )
             }
-            // CO2 still saved in model, but we'll hide it from UI as requested
         }
     }
 }
