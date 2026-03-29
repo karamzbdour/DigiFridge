@@ -75,7 +75,7 @@ fun DashboardScreen(
                 CenterAlignedTopAppBar(
                     title = { 
                         Text(
-                            "GreenLoop Dashboard", 
+                            "My Fridge",
                             fontWeight = FontWeight.ExtraBold,
                             letterSpacing = 1.sp
                         ) 
@@ -165,7 +165,7 @@ fun DashboardScreen(
                                                 color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f)
                                             )
                                             Text(
-                                                text = "$${String.format(Locale.US, "%.2f", totalPrice)}",
+                                                text = "£${String.format(Locale.UK, "%.2f", totalPrice)}",
                                                 style = MaterialTheme.typography.bodyMedium,
                                                 fontWeight = FontWeight.Bold,
                                                 color = MaterialTheme.colorScheme.onPrimary
@@ -257,12 +257,23 @@ fun IngredientCard(item: Ingredient, onDelete: () -> Unit) {
                 verticalAlignment = Alignment.Top
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = item.name,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = item.name,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        if (item.quantity != null && item.quantity != "x1") {
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = item.quantity,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
                     Text(
                         text = item.category,
                         style = MaterialTheme.typography.bodySmall,

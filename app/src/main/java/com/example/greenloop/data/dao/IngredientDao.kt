@@ -12,9 +12,15 @@ interface IngredientDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertIngredient(ingredient: Ingredient)
 
+    @Update
+    suspend fun updateIngredient(ingredient: Ingredient)
+
     @Delete
     suspend fun deleteIngredient(ingredient: Ingredient)
 
     @Query("SELECT * FROM ingredients WHERE expiryDate <= :threshold")
     fun getExpiringSoon(threshold: Long): Flow<List<Ingredient>>
+
+    @Query("SELECT * FROM ingredients WHERE name = :name AND category = :category LIMIT 1")
+    suspend fun getIngredientByNameAndCategory(name: String, category: String): Ingredient?
 }

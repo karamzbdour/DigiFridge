@@ -120,12 +120,23 @@ fun DashboardIngredientCard(item: Ingredient, onDelete: () -> Unit) {
                 verticalAlignment = Alignment.Top
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = item.name,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = item.name,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        if (item.quantity != null && item.quantity != "x1") {
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = item.quantity,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
                     Text(
                         text = item.category,
                         style = MaterialTheme.typography.bodySmall,
@@ -151,7 +162,11 @@ fun DashboardIngredientCard(item: Ingredient, onDelete: () -> Unit) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Price: £${String.format(Locale.UK, "%.2f", item.price ?: 0.0)}")
+                Text(
+                    text = "Price: £${String.format(Locale.UK, "%.2f", item.price ?: 0.0)}",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold
+                )
             }
 
             Spacer(modifier = Modifier.height(12.dp))

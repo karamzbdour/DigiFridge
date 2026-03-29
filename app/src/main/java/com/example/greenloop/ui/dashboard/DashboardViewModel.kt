@@ -31,8 +31,17 @@ class DashboardViewModel(private val repository: IngredientRepository) : ViewMod
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val totalPrice: StateFlow<Double> = inventoryItems.map { items ->
-        items.sumOf { it.price ?: 0.0 }
+        items.sumOf { (it.price ?: 0.0) * (extractQuantity(it.quantity)) }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+
+    private fun extractQuantity(quantityStr: String?): Int {
+        if (quantityStr == null) return 1
+        return try {
+            quantityStr.removePrefix("x").toIntOrNull() ?: 1
+        } catch (e: Exception) {
+            1
+        }
+    }
 
     fun scanImage(bitmap: Bitmap) {
         viewModelScope.launch {
@@ -79,14 +88,25 @@ class DashboardViewModel(private val repository: IngredientRepository) : ViewMod
                 calendar.timeInMillis = shopDateLong
                 calendar.add(Calendar.DAY_OF_YEAR, daysToExpiry)
                 
-                val newItem = Ingredient(
-                    name = name,
-                    category = category,
-                    expiryDate = calendar.timeInMillis,
-                    addedDate = shopDateLong, // Use receipt date for graphs/history
-                    price = price
-                )
-                repository.insertIngredient(newItem)
+                val existingIngredient = repository.getIngredientByNameAndCategory(name, category)
+                if (existingIngredient != null) {
+                    val currentQty = extractQuantity(existingIngredient.quantity)
+                    val updatedIngredient = existingIngredient.copy(
+                        quantity = "x${currentQty + 1}",
+                        expiryDate = calendar.timeInMillis // Update to latest expiry if needed, or keep oldest? Usually latest is safer for fresh stock.
+                    )
+                    repository.updateIngredient(updatedIngredient)
+                } else {
+                    val newItem = Ingredient(
+                        name = name,
+                        category = category,
+                        expiryDate = calendar.timeInMillis,
+                        addedDate = shopDateLong,
+                        price = price,
+                        quantity = "x1"
+                    )
+                    repository.insertIngredient(newItem)
+                }
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -97,13 +117,25 @@ class DashboardViewModel(private val repository: IngredientRepository) : ViewMod
         viewModelScope.launch {
             val calendar = Calendar.getInstance()
             calendar.add(Calendar.DAY_OF_YEAR, expiryDays)
-            val newItem = Ingredient(
-                name = name,
-                category = category,
-                expiryDate = calendar.timeInMillis,
-                price = price
-            )
-            repository.insertIngredient(newItem)
+            
+            val existingIngredient = repository.getIngredientByNameAndCategory(name, category)
+            if (existingIngredient != null) {
+                val currentQty = extractQuantity(existingIngredient.quantity)
+                val updatedIngredient = existingIngredient.copy(
+                    quantity = "x${currentQty + 1}",
+                    expiryDate = calendar.timeInMillis
+                )
+                repository.updateIngredient(updatedIngredient)
+            } else {
+                val newItem = Ingredient(
+                    name = name,
+                    category = category,
+                    expiryDate = calendar.timeInMillis,
+                    price = price,
+                    quantity = "x1"
+                )
+                repository.insertIngredient(newItem)
+            }
         }
     }
 

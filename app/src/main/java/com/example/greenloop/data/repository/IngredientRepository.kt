@@ -15,7 +15,15 @@ class IngredientRepository(private val ingredientDao: IngredientDao) {
         ingredientDao.insertIngredient(ingredient)
     }
 
+    suspend fun updateIngredient(ingredient: Ingredient) {
+        ingredientDao.updateIngredient(ingredient)
+    }
+
     suspend fun deleteIngredient(ingredient: Ingredient) {
         ingredientDao.deleteIngredient(ingredient)
+    }
+
+    suspend fun getIngredientByNameAndCategory(name: String, category: String): Ingredient? {
+        return ingredientDao.getIngredientByNameAndCategory(name, category)
     }
 }

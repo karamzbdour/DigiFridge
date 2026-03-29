@@ -34,8 +34,8 @@ fun RecipeLibraryScreen(viewModel: RecipeViewModel) {
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("AI Recipe Generator", fontWeight = FontWeight.Bold) },
+            CenterAlignedTopAppBar(
+                title = { Text("Recipe Builder", fontWeight = FontWeight.Bold) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -113,7 +113,7 @@ fun RecipeLibraryScreen(viewModel: RecipeViewModel) {
                 } else {
                     Icon(Icons.Default.AutoAwesome, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Generate Multiple Rescue Recipes")
+                    Text("Generate")
                 }
             }
 
