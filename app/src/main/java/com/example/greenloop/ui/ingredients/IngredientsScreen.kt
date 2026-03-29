@@ -29,7 +29,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.greenloop.data.model.Ingredient
 import com.example.greenloop.ui.dashboard.DashboardViewModel
 import com.example.greenloop.ui.dashboard.ExpiryStatus
-import com.example.greenloop.ui.dashboard.NutrientBadge
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
