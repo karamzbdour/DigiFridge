@@ -6,5 +6,6 @@ import com.squareup.moshi.JsonClass
 data class GeneratedRecipe(
     val recipeName: String,
     val prepTimeMinutes: Int,
+    val difficulty: String,
     val steps: List<String>
 )

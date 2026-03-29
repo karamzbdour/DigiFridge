@@ -3,7 +3,7 @@ package com.example.greenloop.ui.recipes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.greenloop.api.OpenRouterManager
+import com.example.greenloop.api.GeminiManager
 import com.example.greenloop.data.model.GeneratedRecipe
 import com.example.greenloop.data.model.Ingredient
 import com.example.greenloop.data.model.Recipe
@@ -68,7 +68,7 @@ class RecipeViewModel(
                     .joinToString(", ") { it.name }
 
                 val prompt = """
-                    Generate at least 3 simple waste-reducing recipes using these ingredients: ${selectedNames}.
+                    Generate at least 3 simple waste-reducing recipes using these ingredients: $selectedNames.
                     The recipes must be optimized to rescue these items from being wasted.
                     Response MUST be a strict JSON array of objects with this structure:
                     [
@@ -82,7 +82,8 @@ class RecipeViewModel(
                     Only return the JSON array.
                 """.trimIndent()
 
-                val responseText = OpenRouterManager.generateContent(prompt) ?: ""
+                val response = GeminiManager.model.generateContent(prompt)
+                val responseText = response.text ?: ""
                 
                 // Clean the response if it contains markdown code blocks
                 val jsonString = responseText.substringAfter("```json").substringBeforeLast("```").trim()
@@ -96,7 +97,7 @@ class RecipeViewModel(
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                _errorMessage.value = "Error generating recipes: ${e.localizedMessage}. Please check your OPENROUTER_API_KEY in local.properties."
+                _errorMessage.value = "Error generating recipes: ${e.localizedMessage}. Please check your API key."
             } finally {
                 _isGenerating.value = false
             }

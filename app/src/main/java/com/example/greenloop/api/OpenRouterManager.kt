@@ -100,4 +100,25 @@ object OpenRouterManager {
             "Error: ${e.message}"
         }
     }
+
+    suspend fun generateContent(prompt: String): String? {
+        val request = OpenRouterRequest(
+            messages = listOf(
+                Message(
+                    role = "user",
+                    content = listOf(MessageContent(type = "text", text = prompt))
+                )
+            )
+        )
+
+        return try {
+            val response = service.getCompletion(
+                apiKey = "Bearer ${BuildConfig.OPENROUTER_API_KEY}",
+                request = request
+            )
+            response.choices.firstOrNull()?.message?.content
+        } catch (e: Exception) {
+            null
+        }
+    }
 }
