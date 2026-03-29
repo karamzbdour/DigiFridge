@@ -361,7 +361,7 @@ fun GeneratedRecipeCard(
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 shape = MaterialTheme.shapes.medium
             ) {
-                Text("Use")
+                Text("Add to library")
             }
         }
     }
